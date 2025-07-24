@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: fastapi_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "7531:7531"
+    volumes:
+      - ./app:/app
+    command: >
+      sh -c "
+        sleep 10 &&
+        python db_init/init_db.py &&
+        uvicorn main:app --host 0.0.0.0 --port 7531
+      "
+
+volumes:
+  postgres_data:
